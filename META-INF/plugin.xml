@@ -1,0 +1,70 @@
+<idea-plugin version="2">
+    <id>com.github.shiraji.pluginimporterexporter</id>
+    <name>Plugin Importer+Exporter</name>
+    <version>0.0.1</version>
+    <vendor email="isogai.shiraji@gmail.com" url="https://github.com/shiraji">
+        Shiraji
+    </vendor>
+
+    <description><![CDATA[
+        This plugin currently has two main features.
+        <ul>
+            <li>Dump which plugins are installed to a JSON file</li>
+            <li>Download all plugins from a JSON file</li>
+        </ul>
+        This plugin DOES NOT export actual plugins.<br/><br/>
+        <a href="https://github.com/shiraji/plugin-importer-exporter">GitHub</a> |
+        <a href="https://github.com/shiraji/plugin-importer-exporter/issues">Issues</a>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <p>0.0.1</p>
+        <ul>
+            <li>Initial release</li>
+        </ul>
+    ]]>
+    </change-notes>
+
+    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="131"/>
+
+    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <applicationService
+                serviceImplementation="com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig"
+                serviceInterface="com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig"/>
+    </extensions>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action
+                class="com.github.shiraji.pluginimporterexporter.action.PluginImporterAction"
+                description="Install plugins from a setting file"
+                id="PluginImporterAction" text="Import Plugins...">
+            <add-to-group anchor="after" group-id="FileMenu"
+                          relative-to-action="FileMainSettingsGroup"/>
+        </action>
+        <action
+                class="com.github.shiraji.pluginimporterexporter.action.PluginExporterAction"
+                description="Export plugin information to a setting file"
+                id="PluginExporterAction" text="Export Plugins...">
+            <add-to-group anchor="after" group-id="FileMenu"
+                          relative-to-action="PluginImporterAction"/>
+        </action>
+    </actions>
+
+</idea-plugin>
