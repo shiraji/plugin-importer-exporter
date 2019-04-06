@@ -5,11 +5,14 @@ import com.github.shiraji.pluginimporterexporter.model.PluginNodeModel;
 import com.github.shiraji.pluginimporterexporter.model.PluginNodeModelFactory;
 import com.github.shiraji.pluginimporterexporter.view.PluginImporterExporterPanel;
 import com.google.gson.JsonParseException;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.ide.plugins.PluginManagerMain;
 import com.intellij.ide.plugins.PluginNode;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -17,7 +20,9 @@ import com.intellij.openapi.ui.Messages;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class PluginImporterAction extends AnAction {
@@ -114,7 +119,28 @@ public class PluginImporterAction extends AnAction {
             }
         };
 
+        PluginManagerMain.PluginEnabler pluginEnabler = new PluginManagerMain.PluginEnabler() {
+            @Override
+            public void enablePlugins(Set<IdeaPluginDescriptor> set) {
+                for (IdeaPluginDescriptor descriptor : set) {
+                    PluginManagerCore.enablePlugin(descriptor.getPluginId().getIdString());
+                }
+            }
+
+            @Override
+            public void disablePlugins(Set<IdeaPluginDescriptor> set) {
+                for (IdeaPluginDescriptor descriptor : set) {
+                    PluginManagerCore.disablePlugin(descriptor.getPluginId().getIdString());
+                }
+            }
+
+            @Override
+            public boolean isDisabled(PluginId pluginId) {
+                return false;
+            }
+        };
+
         PluginManagerMain.downloadPlugins(list, null,
-                onSuccessRunnable, onCleanUpRunnable);
+                onSuccessRunnable, pluginEnabler, onCleanUpRunnable);
     }
 }
