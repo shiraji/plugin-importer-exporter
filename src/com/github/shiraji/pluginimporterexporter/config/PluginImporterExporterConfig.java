@@ -14,7 +14,7 @@ import java.io.File;
 @State(
         name = "PluginImporterExporterConfig",
         storages = {
-                @Storage(id = "PluginImporterExporterConfig", file = StoragePathMacros.APP_CONFIG + "/plugin_impoter_exporter.xml")
+                @Storage(file = Storage.NOT_ROAMABLE_FILE)
         }
 )
 public class PluginImporterExporterConfig implements PersistentStateComponent<PluginImporterExporterConfig> {
