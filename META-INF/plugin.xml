@@ -18,15 +18,15 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <p>0.0.1</p>
+        <p>0.0.2</p>
         <ul>
-            <li>Initial release</li>
+            <li>Fix the problem with downloading plugins. #4 Thanks @jendrikw and @IEnoobong</li>
         </ul>
     ]]>
     </change-notes>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="131"/>
+    <idea-version since-build="181"/>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
          on how to target different products -->
