@@ -4,7 +4,6 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +13,7 @@ import java.io.File;
 @State(
         name = "PluginImporterExporterConfig",
         storages = {
-                @Storage(file = Storage.NOT_ROAMABLE_FILE)
+                @Storage(value = "plugin-importer-exporter.xml")
         }
 )
 public class PluginImporterExporterConfig implements PersistentStateComponent<PluginImporterExporterConfig> {
