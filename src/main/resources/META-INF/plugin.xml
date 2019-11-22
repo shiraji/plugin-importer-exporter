@@ -17,14 +17,6 @@
         <a href="https://github.com/shiraji/plugin-importer-exporter/issues">Issues</a>
     ]]></description>
 
-    <change-notes><![CDATA[
-        <p>0.0.2</p>
-        <ul>
-            <li>Fix the problem with downloading plugins. #4 Thanks @jendrikw and @IEnoobong</li>
-        </ul>
-    ]]>
-    </change-notes>
-
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="181"/>
 
