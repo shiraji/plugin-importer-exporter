@@ -17,8 +17,9 @@ import java.io.File;
         }
 )
 public class PluginImporterExporterConfig implements PersistentStateComponent<PluginImporterExporterConfig> {
+    public static final String DEFAULT_FILE_NAME = "plugins.json";
     public static final String DEFAULT_FILE_PATH = System.getProperty("user" +
-            ".home") + File.separator + "plugins.json";
+            ".home") + File.separator + DEFAULT_FILE_NAME;
 
     private String mPluginSettingFilePath = DEFAULT_FILE_PATH;
 

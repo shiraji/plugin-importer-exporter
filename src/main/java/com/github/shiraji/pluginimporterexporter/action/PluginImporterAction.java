@@ -119,17 +119,18 @@ public class PluginImporterAction extends AnAction {
         };
 
         PluginManagerMain.PluginEnabler pluginEnabler = new PluginManagerMain.PluginEnabler() {
+
             @Override
-            public void enablePlugins(Set<IdeaPluginDescriptor> set) {
+            public void enablePlugins(Set<? extends IdeaPluginDescriptor> set) {
                 for (IdeaPluginDescriptor descriptor : set) {
-                    PluginManagerCore.enablePlugin(descriptor.getPluginId().getIdString());
+                    PluginManagerCore.enablePlugin(descriptor.getPluginId());
                 }
             }
 
             @Override
-            public void disablePlugins(Set<IdeaPluginDescriptor> set) {
+            public void disablePlugins(Set<? extends IdeaPluginDescriptor> set) {
                 for (IdeaPluginDescriptor descriptor : set) {
-                    PluginManagerCore.disablePlugin(descriptor.getPluginId().getIdString());
+                    PluginManagerCore.disablePlugin(descriptor.getPluginId());
                 }
             }
 

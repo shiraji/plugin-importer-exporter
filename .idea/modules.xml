@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/plugin-importer-exporter.iml" filepath="$PROJECT_DIR$/plugin-importer-exporter.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/plugin-importer-exporter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/plugin-importer-exporter.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/plugin-importer-exporter.test.iml" filepath="$PROJECT_DIR$/.idea/modules/plugin-importer-exporter.test.iml" />
     </modules>

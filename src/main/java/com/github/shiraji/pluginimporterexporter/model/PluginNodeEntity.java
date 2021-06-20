@@ -2,8 +2,8 @@ package com.github.shiraji.pluginimporterexporter.model;
 
 import com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig;
 import com.google.gson.annotations.SerializedName;
+import com.intellij.ide.plugins.IdeaPluginDependency;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.openapi.extensions.PluginId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,9 @@ public class PluginNodeEntity {
     @SerializedName("isEnable")
     private boolean mIsEnable;
 
+    @SerializedName("version")
+    private String version;
+
     public static PluginNodeEntity newInstance(IdeaPluginDescriptor
                                                        ideaPluginDescriptor) {
         PluginNodeEntity entity = new PluginNodeEntity();
@@ -38,21 +41,21 @@ public class PluginNodeEntity {
         entity.setDownloadUrl(ideaPluginDescriptor.getUrl());
         entity.setIsBundle(ideaPluginDescriptor.isBundled());
         entity.setIsEnable(ideaPluginDescriptor.isEnabled());
+        entity.setVersion(ideaPluginDescriptor.getVersion());
 
-        PluginId[] dependentPluginIds = ideaPluginDescriptor.getDependentPluginIds();
+        List<String> idStrings2 = new ArrayList<String>();
         List<String> idStrings = new ArrayList<String>();
-        for (PluginId dependentPluginId : dependentPluginIds) {
-            idStrings.add(dependentPluginId.getIdString());
+
+        List<IdeaPluginDependency> dependentPlugins = ideaPluginDescriptor.getDependencies();
+        for (IdeaPluginDependency dependentPluginId : dependentPlugins) {
+            idStrings.add(dependentPluginId.getPluginId().getIdString());
+            if (dependentPluginId.isOptional()) {
+                idStrings2.add(dependentPluginId.getPluginId().getIdString());
+            }
         }
         entity.setDependencyPluginIds(idStrings);
-
-        PluginId[] optionalDependentPluginIds = ideaPluginDescriptor
-                .getOptionalDependentPluginIds();
-        List<String> idStrings2 = new ArrayList<String>();
-        for (PluginId dependentPluginId : optionalDependentPluginIds) {
-            idStrings2.add(dependentPluginId.getIdString());
-        }
         entity.setOptionalDependencyPluginIds(idStrings2);
+
         return entity;
     }
 
@@ -110,6 +113,14 @@ public class PluginNodeEntity {
 
     public boolean isEnable() {
         return mIsEnable;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public boolean isValidEntity() {

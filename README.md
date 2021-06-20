@@ -1,12 +1,12 @@
 # Plugin Importer+Exporter
-
+<!-- Plugin description -->
 This plugin currently has two main features.
 
 1. Dump which plugins are installed to a JSON file
 1. Download all plugins from a JSON file
 
 This plugin DOES NOT export actual plugins.
-
+<!-- Plugin description end -->
 ## Installation
 
 Use the IDE's plugin manager to install the latest version of the plugin.
