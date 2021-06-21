@@ -1,8 +1,8 @@
 package com.github.shiraji.pluginimporterexporter.action;
 
 import com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig;
-import com.github.shiraji.pluginimporterexporter.model.PluginNodeModel;
-import com.github.shiraji.pluginimporterexporter.model.PluginNodeModelFactory;
+import com.github.shiraji.pluginimporterexporter.model.json.PluginNodeModel;
+import com.github.shiraji.pluginimporterexporter.model.json.PluginNodeModelFactory;
 import com.github.shiraji.pluginimporterexporter.view.PluginImporterExporterPanel;
 import com.google.gson.JsonParseException;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;

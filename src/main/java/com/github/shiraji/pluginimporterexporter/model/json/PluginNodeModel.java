@@ -1,4 +1,4 @@
-package com.github.shiraji.pluginimporterexporter.model;
+package com.github.shiraji.pluginimporterexporter.model.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,11 +16,11 @@ public class PluginNodeModel {
     @SerializedName("plugins")
     private List<PluginNodeEntity> mPluginNodeEntities;
 
-    public List<PluginNodeEntity> getPluignNodeEntities() {
+    public List<PluginNodeEntity> getPluginNodeEntities() {
         return mPluginNodeEntities;
     }
 
-    public void setPluignNodeEntities(List<PluginNodeEntity> plugins) {
+    public void setPluginNodeEntities(List<PluginNodeEntity> plugins) {
         mPluginNodeEntities = plugins;
     }
 
@@ -32,7 +32,7 @@ public class PluginNodeModel {
     @NotNull
     public List<PluginNode> getDownloadPluginNodeList() {
         List<PluginNode> list = new ArrayList<PluginNode>();
-        List<PluginNodeEntity> pluginNodeEntities = getPluignNodeEntities();
+        List<PluginNodeEntity> pluginNodeEntities = getPluginNodeEntities();
         for (PluginNodeEntity pluginNodeEntity : pluginNodeEntities) {
             if (pluginNodeEntity == null || !pluginNodeEntity.isValidIdString() || pluginNodeEntity.isBundle()) {
                 continue;
@@ -46,7 +46,7 @@ public class PluginNodeModel {
     @NotNull
     public List<PluginNode> getDisabledPluginNodeList() {
         List<PluginNode> list = new ArrayList<PluginNode>();
-        List<PluginNodeEntity> pluginNodeEntities = getPluignNodeEntities();
+        List<PluginNodeEntity> pluginNodeEntities = getPluginNodeEntities();
         for (PluginNodeEntity pluginNodeEntity : pluginNodeEntities) {
             if (pluginNodeEntity == null || !pluginNodeEntity.isValidIdString() || pluginNodeEntity.isEnable()) {
                 continue;

@@ -1,4 +1,4 @@
-package com.github.shiraji.pluginimporterexporter.model;
+package com.github.shiraji.pluginimporterexporter.model.json;
 
 import com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig;
 import com.google.gson.annotations.SerializedName;
@@ -33,6 +33,11 @@ public class PluginNodeEntity {
     @SerializedName("version")
     private String version;
 
+    private transient String sinceBuild;
+    private transient String untilBuild;
+    private transient String description;
+    private transient String changeNotes;
+
     public static PluginNodeEntity newInstance(IdeaPluginDescriptor
                                                        ideaPluginDescriptor) {
         PluginNodeEntity entity = new PluginNodeEntity();
@@ -42,6 +47,10 @@ public class PluginNodeEntity {
         entity.setIsBundle(ideaPluginDescriptor.isBundled());
         entity.setIsEnable(ideaPluginDescriptor.isEnabled());
         entity.setVersion(ideaPluginDescriptor.getVersion());
+        entity.setSinceBuild(ideaPluginDescriptor.getSinceBuild());
+        entity.setUntilBuild(ideaPluginDescriptor.getUntilBuild());
+        entity.setDescription(ideaPluginDescriptor.getDescription());
+        entity.setChangeNotes(ideaPluginDescriptor.getChangeNotes());
 
         List<String> idStrings2 = new ArrayList<String>();
         List<String> idStrings = new ArrayList<String>();
@@ -121,6 +130,38 @@ public class PluginNodeEntity {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getSinceBuild() {
+        return sinceBuild;
+    }
+
+    public void setSinceBuild(String sinceBuild) {
+        this.sinceBuild = sinceBuild;
+    }
+
+    public String getUntilBuild() {
+        return untilBuild;
+    }
+
+    public void setUntilBuild(String untilBuild) {
+        this.untilBuild = untilBuild;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getChangeNotes() {
+        return changeNotes;
+    }
+
+    public void setChangeNotes(String changeNotes) {
+        this.changeNotes = changeNotes;
     }
 
     public boolean isValidEntity() {

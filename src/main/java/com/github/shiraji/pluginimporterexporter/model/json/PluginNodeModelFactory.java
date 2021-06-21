@@ -1,4 +1,4 @@
-package com.github.shiraji.pluginimporterexporter.model;
+package com.github.shiraji.pluginimporterexporter.model.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,7 +20,7 @@ public class PluginNodeModelFactory {
             }
         }
         PluginNodeModel model = new PluginNodeModel();
-        model.setPluignNodeEntities(entities);
+        model.setPluginNodeEntities(entities);
         return model;
     }
 

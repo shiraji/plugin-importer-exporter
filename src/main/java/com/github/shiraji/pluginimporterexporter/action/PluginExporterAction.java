@@ -1,9 +1,12 @@
 package com.github.shiraji.pluginimporterexporter.action;
 
 import com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig;
-import com.github.shiraji.pluginimporterexporter.model.PluginNodeEntity;
-import com.github.shiraji.pluginimporterexporter.model.PluginNodeModel;
-import com.github.shiraji.pluginimporterexporter.model.PluginNodeModelFactory;
+import com.github.shiraji.pluginimporterexporter.model.json.PluginNodeEntity;
+import com.github.shiraji.pluginimporterexporter.model.json.PluginNodeModel;
+import com.github.shiraji.pluginimporterexporter.model.json.PluginNodeModelFactory;
+import com.github.shiraji.pluginimporterexporter.model.xml.IdeaVersion;
+import com.github.shiraji.pluginimporterexporter.model.xml.Plugin;
+import com.github.shiraji.pluginimporterexporter.model.xml.Plugins;
 import com.github.shiraji.pluginimporterexporter.view.PluginImporterExporterPanel;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.notification.NotificationDisplayType;
@@ -18,6 +21,7 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -33,6 +37,9 @@ import org.jsfr.json.compiler.JsonPathCompiler;
 import org.jsfr.json.path.JsonPath;
 import org.jsfr.json.provider.GsonProvider;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -112,7 +119,7 @@ public class PluginExporterAction extends AnAction {
                     public void run(@NotNull ProgressIndicator indicator) {
                         try {
                             writePluginInfo(file);
-                        } catch (IOException e) {
+                        } catch (IOException | JAXBException e) {
                             throw new RuntimeException(e);
                         }
                     }
@@ -171,24 +178,45 @@ public class PluginExporterAction extends AnAction {
                 mPluginImporterExporterPanel.mSaveDisabledPluginCheckBox.isSelected());
     }
 
-    private void writePluginInfo(File jsonFile) throws IOException {
+    private void writePluginInfo(File jsonFile) throws IOException, JAXBException {
         PluginNodeModel model = PluginNodeModelFactory.newInstance(PluginManager.getPlugins());
 
-        try (FileWriter fileWriter = new FileWriter(jsonFile); BufferedWriter writer = new BufferedWriter(fileWriter)) {
+        try (FileWriter jsonFileWriter = new FileWriter(jsonFile);
+             BufferedWriter jsonWriter = new BufferedWriter(jsonFileWriter);
+             FileWriter xmlFileWriter = new FileWriter(new File(jsonFile.getParentFile(), "updatePlugins.xml"));
+             BufferedWriter xmlWriter = new BufferedWriter(xmlFileWriter);
+        ) {
+            Plugins plugins = new Plugins();
 
-            for (PluginNodeEntity plugin : model.getPluignNodeEntities()) {
+            for (PluginNodeEntity plugin : model.getPluginNodeEntities()) {
                 final String pluginName = plugin.getPluginName();
                 try {
                     final int id = getId(pluginName);
                     final String fileName = getFileName(id, plugin.getVersion());
                     download(jsonFile, fileName);
+                    Plugin p = new Plugin(plugin.getPluginIdString(), "http://localhost/" + Paths.get(fileName).getFileName()
+                            .toString(), plugin.getVersion(),
+                            pluginName);
+                    p.setDescription(plugin.getDescription());
+                    p.setChangeNotes(plugin.getChangeNotes());
+                    IdeaVersion ideaVersion = new IdeaVersion(plugin.getSinceBuild(), plugin.getUntilBuild());
+                    p.setIdeaVersion(ideaVersion);
+                    plugins.add(p);
                 } catch (Exception e) {
                     mLogger.fine(String.format("download file %s failed: %s", pluginName, e.getMessage()));
                 }
-            }
 
-            writer.write(model.toJsonString());
-            writer.flush();
+            }
+            JAXBContext context = JAXBContext.newInstance(Plugins.class);
+            Marshaller mar = context.createMarshaller();
+            mar.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            mar.setProperty(CharacterEscapeHandler.class.getName(),
+                    (CharacterEscapeHandler)(ac, i, j, flag, writer) -> writer.write(ac, i, j));
+            mar.marshal(plugins, xmlWriter);
+            xmlWriter.flush();
+
+            jsonWriter.write(model.toJsonString());
+            jsonWriter.flush();
         }
     }
 
