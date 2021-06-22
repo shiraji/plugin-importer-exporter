@@ -10,8 +10,8 @@ import com.github.shiraji.pluginimporterexporter.model.xml.Plugins;
 import com.github.shiraji.pluginimporterexporter.view.PluginImporterExporterPanel;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.plugins.marketplace.MarketplaceRequests;
-import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -42,8 +42,8 @@ import java.util.logging.Logger;
 
 public class PluginExporterAction extends AnAction {
     Logger mLogger = Logger.getLogger(PluginExporterAction.class.getName());
-    private static final NotificationGroup NOTIFICATION_GROUP =
-            new NotificationGroup("com.github.shiraji", NotificationDisplayType.BALLOON, true);
+    public static final NotificationGroup NOTIFICATION_GROUP = NotificationGroupManager.getInstance().getNotificationGroup(
+            "com.github.shiraji");
 
     private PluginImporterExporterPanel mPluginImporterExporterPanel;
 
@@ -194,10 +194,7 @@ public class PluginExporterAction extends AnAction {
                     if (!url.endsWith("/")) {
                         url += "/";
                     }
-                    Plugin p = new Plugin(plugin.getPluginIdString(),
-                            url + file.getName(),
-                            plugin.getVersion(),
-                            pluginName);
+                    Plugin p = new Plugin(plugin.getPluginIdString(), url + file.getName(), plugin.getVersion(), pluginName);
                     p.setDescription(plugin.getDescription());
                     p.setChangeNotes(plugin.getChangeNotes());
                     IdeaVersion ideaVersion = new IdeaVersion(plugin.getSinceBuild(), plugin.getUntilBuild());
@@ -232,8 +229,8 @@ public class PluginExporterAction extends AnAction {
                 .addParameters(parameters)
                 .toExternalForm();
 
-        final File file = myMarketplaceRequests.download(url, indicator);
-        final File destFile = new File(jsonFile.getParentFile().getAbsolutePath()+"/plugins", file.getName());
+        final File file = myMarketplaceRequests.downloadPlugin(url, indicator);
+        final File destFile = new File(jsonFile.getParentFile().getAbsolutePath() + "/plugins", file.getName());
 
         FileUtils.moveFile(file, destFile);
 

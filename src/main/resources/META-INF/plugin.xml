@@ -18,6 +18,7 @@
         <applicationService
                 serviceImplementation="com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig"
                 serviceInterface="com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig"/>
+        <notificationGroup displayType="BALLOON" id="com.github.shiraji"/>
     </extensions>
 
     <application-components>
