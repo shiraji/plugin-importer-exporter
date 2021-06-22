@@ -12,7 +12,7 @@ import java.util.List;
 
 public class PluginNodeModelFactory {
     public static PluginNodeModel newInstance(IdeaPluginDescriptor[] ideaPluginDescriptors) {
-        List<PluginNodeEntity> entities = new ArrayList<PluginNodeEntity>();
+        List<PluginNodeEntity> entities = new ArrayList<>();
         for (IdeaPluginDescriptor ideaPluginDescriptor : ideaPluginDescriptors) {
             PluginNodeEntity entity = PluginNodeEntity.newInstance(ideaPluginDescriptor);
             if (entity != null && entity.isValidEntity()) {

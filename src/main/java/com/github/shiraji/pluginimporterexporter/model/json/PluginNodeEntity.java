@@ -1,7 +1,6 @@
 package com.github.shiraji.pluginimporterexporter.model.json;
 
 import com.github.shiraji.pluginimporterexporter.config.PluginImporterExporterConfig;
-import com.google.gson.annotations.SerializedName;
 import com.intellij.ide.plugins.IdeaPluginDependency;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 
@@ -9,37 +8,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PluginNodeEntity {
-    @SerializedName("pluginId")
-    private String mPluginIdString;
-
-    @SerializedName("pluginName")
-    private String mPluginName;
-
-    @SerializedName("downloadUrl")
-    private String mDownloadUrl;
-
-    @SerializedName("dependencyPluginIds")
-    private List<String> mDependencyPluginIds;
-
-    @SerializedName("optionalDependencyPluginIds")
-    private List<String> mOptionalDependencyPluginIds;
-
-    @SerializedName("isBundle")
-    private boolean mIsBundle;
-
-    @SerializedName("isEnable")
-    private boolean mIsEnable;
-
-    @SerializedName("version")
+    private String pluginIdString;
+    private String pluginName;
+    private String downloadUrl;
+    private List<String> dependencyPluginIds;
+    private List<String> optionalDependencyPluginIds;
+    private boolean isBundle;
+    private boolean isEnable;
     private String version;
+    private String sinceBuild;
+    private String untilBuild;
+    private String description;
+    private String changeNotes;
 
-    private transient String sinceBuild;
-    private transient String untilBuild;
-    private transient String description;
-    private transient String changeNotes;
+    private transient IdeaPluginDescriptor ideaPluginDescriptor;
 
-    public static PluginNodeEntity newInstance(IdeaPluginDescriptor
-                                                       ideaPluginDescriptor) {
+    public static PluginNodeEntity newInstance(IdeaPluginDescriptor ideaPluginDescriptor) {
         PluginNodeEntity entity = new PluginNodeEntity();
         entity.setPluginIdString(ideaPluginDescriptor.getPluginId().toString());
         entity.setPluginName(ideaPluginDescriptor.getName());
@@ -51,77 +35,78 @@ public class PluginNodeEntity {
         entity.setUntilBuild(ideaPluginDescriptor.getUntilBuild());
         entity.setDescription(ideaPluginDescriptor.getDescription());
         entity.setChangeNotes(ideaPluginDescriptor.getChangeNotes());
+        entity.setIdeaPluginDescriptor(ideaPluginDescriptor);
 
-        List<String> idStrings2 = new ArrayList<String>();
-        List<String> idStrings = new ArrayList<String>();
+        List<String> optionalDependencyPluginIds = new ArrayList<>();
+        List<String> dependencyPluginIds = new ArrayList<>();
 
         List<IdeaPluginDependency> dependentPlugins = ideaPluginDescriptor.getDependencies();
         for (IdeaPluginDependency dependentPluginId : dependentPlugins) {
-            idStrings.add(dependentPluginId.getPluginId().getIdString());
+            dependencyPluginIds.add(dependentPluginId.getPluginId().getIdString());
             if (dependentPluginId.isOptional()) {
-                idStrings2.add(dependentPluginId.getPluginId().getIdString());
+                optionalDependencyPluginIds.add(dependentPluginId.getPluginId().getIdString());
             }
         }
-        entity.setDependencyPluginIds(idStrings);
-        entity.setOptionalDependencyPluginIds(idStrings2);
+        entity.setDependencyPluginIds(dependencyPluginIds);
+        entity.setOptionalDependencyPluginIds(optionalDependencyPluginIds);
 
         return entity;
     }
 
     public void setIsBundle(boolean isBundle) {
-        mIsBundle = isBundle;
+        this.isBundle = isBundle;
     }
 
     public void setIsEnable(boolean isEnable) {
-        mIsEnable = isEnable;
+        this.isEnable = isEnable;
     }
 
     public String getPluginIdString() {
-        return mPluginIdString;
+        return pluginIdString;
     }
 
     public void setPluginIdString(String pluginIdString) {
-        mPluginIdString = pluginIdString;
+        this.pluginIdString = pluginIdString;
     }
 
     public String getPluginName() {
-        return mPluginName;
+        return pluginName;
     }
 
     public void setPluginName(String pluginName) {
-        mPluginName = pluginName;
+        this.pluginName = pluginName;
     }
 
     public String getDownloadUrl() {
-        return mDownloadUrl;
+        return downloadUrl;
     }
 
     public void setDownloadUrl(String downloadUrl) {
-        mDownloadUrl = downloadUrl;
+        this.downloadUrl = downloadUrl;
     }
 
     public List<String> getDependencyPluginIds() {
-        return mDependencyPluginIds;
+        return dependencyPluginIds;
     }
 
     public void setDependencyPluginIds(List<String> dependencyPluginIds) {
-        mDependencyPluginIds = dependencyPluginIds;
+        this.dependencyPluginIds = dependencyPluginIds;
     }
 
     public List<String> getOptionalDependencyPluginIds() {
-        return mOptionalDependencyPluginIds;
+        return optionalDependencyPluginIds;
     }
 
     public void setOptionalDependencyPluginIds(List<String> optionalDependencyPluginIds) {
-        mOptionalDependencyPluginIds = optionalDependencyPluginIds;
+        this.optionalDependencyPluginIds = optionalDependencyPluginIds;
     }
 
     public boolean isBundle() {
-        return mIsBundle;
+        return isBundle;
     }
 
     public boolean isEnable() {
-        return mIsEnable;
+        return isEnable;
     }
 
     public String getVersion() {
@@ -164,6 +149,14 @@ public class PluginNodeEntity {
         this.changeNotes = changeNotes;
     }
 
+    public IdeaPluginDescriptor getIdeaPluginDescriptor() {
+        return ideaPluginDescriptor;
+    }
+
+    public void setIdeaPluginDescriptor(IdeaPluginDescriptor ideaPluginDescriptor) {
+        this.ideaPluginDescriptor = ideaPluginDescriptor;
+    }
+
     public boolean isValidEntity() {
         if (!isValidIdString()) {
             return false;
@@ -197,13 +190,13 @@ public class PluginNodeEntity {
     @Override
     public String toString() {
         return "PluginNodeEntity{" +
-                "mPluginIdString='" + mPluginIdString + '\'' +
-                ", mPluginName='" + mPluginName + '\'' +
-                ", mDownloadUrl='" + mDownloadUrl + '\'' +
-                ", mDependencyPluginIds=" + mDependencyPluginIds +
-                ", mOptionalDependencyPluginIds=" + mOptionalDependencyPluginIds +
-                ", mIsBundle=" + mIsBundle +
-                ", mIsEnable=" + mIsEnable +
+                "mPluginIdString='" + pluginIdString + '\'' +
+                ", mPluginName='" + pluginName + '\'' +
+                ", mDownloadUrl='" + downloadUrl + '\'' +
+                ", mDependencyPluginIds=" + dependencyPluginIds +
+                ", mOptionalDependencyPluginIds=" + optionalDependencyPluginIds +
+                ", mIsBundle=" + isBundle +
+                ", mIsEnable=" + isEnable +
                 '}';
     }
 }

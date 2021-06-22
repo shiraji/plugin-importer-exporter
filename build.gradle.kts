@@ -29,7 +29,7 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.17.1")
-    implementation("com.github.jsurfer:jsurfer-gson:1.6.0")
+    implementation("commons-validator:commons-validator:1.7")
 }
 
 // Configure gradle-intellij-plugin plugin.

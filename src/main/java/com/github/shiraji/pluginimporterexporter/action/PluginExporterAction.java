@@ -9,11 +9,14 @@ import com.github.shiraji.pluginimporterexporter.model.xml.Plugin;
 import com.github.shiraji.pluginimporterexporter.model.xml.Plugins;
 import com.github.shiraji.pluginimporterexporter.view.PluginImporterExporterPanel;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.marketplace.MarketplaceRequests;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.PermanentInstallationID;
+import com.intellij.openapi.application.impl.ApplicationInfoImpl;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -21,21 +24,10 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.util.Urls;
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jsfr.json.Collector;
-import org.jsfr.json.GsonParser;
-import org.jsfr.json.JsonSurfer;
-import org.jsfr.json.ValueBox;
-import org.jsfr.json.compiler.JsonPathCompiler;
-import org.jsfr.json.path.JsonPath;
-import org.jsfr.json.provider.GsonProvider;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -44,18 +36,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.file.Paths;
-import java.util.logging.Level;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 public class PluginExporterAction extends AnAction {
-
     Logger mLogger = Logger.getLogger(PluginExporterAction.class.getName());
-    JsonSurfer surfer = new JsonSurfer(GsonParser.INSTANCE, GsonProvider.INSTANCE);
-    CloseableHttpClient httpClient = HttpClientBuilder.create().build();
     private static final NotificationGroup NOTIFICATION_GROUP =
             new NotificationGroup("com.github.shiraji", NotificationDisplayType.BALLOON, true);
 
@@ -118,7 +104,7 @@ public class PluginExporterAction extends AnAction {
                     @Override
                     public void run(@NotNull ProgressIndicator indicator) {
                         try {
-                            writePluginInfo(file);
+                            writePluginInfo(file, indicator);
                         } catch (IOException | JAXBException e) {
                             throw new RuntimeException(e);
                         }
@@ -178,29 +164,45 @@ public class PluginExporterAction extends AnAction {
                 mPluginImporterExporterPanel.mSaveDisabledPluginCheckBox.isSelected());
     }
 
-    private void writePluginInfo(File jsonFile) throws IOException, JAXBException {
+    private void writePluginInfo(File jsonFile, @NotNull ProgressIndicator indicator) throws IOException, JAXBException {
         PluginNodeModel model = PluginNodeModelFactory.newInstance(PluginManager.getPlugins());
 
         try (FileWriter jsonFileWriter = new FileWriter(jsonFile);
              BufferedWriter jsonWriter = new BufferedWriter(jsonFileWriter);
-             FileWriter xmlFileWriter = new FileWriter(new File(jsonFile.getParentFile(), "updatePlugins.xml"));
-             BufferedWriter xmlWriter = new BufferedWriter(xmlFileWriter);
         ) {
+            jsonWriter.write(model.toJsonString());
+            jsonWriter.flush();
+        }
+
+        if (mPluginImporterExporterPanel.mExportAsPluginRepositoryCheckBox.isSelected()) {
+            exportAsRepository(jsonFile, indicator, model);
+        }
+    }
+
+    private void exportAsRepository(File jsonFile, @NotNull ProgressIndicator indicator, PluginNodeModel model)
+            throws IOException, JAXBException {
+        try (FileWriter xmlFileWriter = new FileWriter(new File(jsonFile.getParentFile(), "updatePlugins.xml"));
+             BufferedWriter xmlWriter = new BufferedWriter(xmlFileWriter);) {
             Plugins plugins = new Plugins();
 
             for (PluginNodeEntity plugin : model.getPluginNodeEntities()) {
                 final String pluginName = plugin.getPluginName();
                 try {
-                    final int id = getId(pluginName);
-                    final String fileName = getFileName(id, plugin.getVersion());
-                    download(jsonFile, fileName);
-                    Plugin p = new Plugin(plugin.getPluginIdString(), "http://localhost/" + Paths.get(fileName).getFileName()
-                            .toString(), plugin.getVersion(),
+                    File file = downloadPluginFile(jsonFile, indicator, plugin, pluginName);
+
+                    String url = mPluginImporterExporterPanel.mRepositoryURL.getText();
+                    if (!url.endsWith("/")) {
+                        url += "/";
+                    }
+                    Plugin p = new Plugin(plugin.getPluginIdString(),
+                            url + file.getName(),
+                            plugin.getVersion(),
                             pluginName);
                     p.setDescription(plugin.getDescription());
                     p.setChangeNotes(plugin.getChangeNotes());
                     IdeaVersion ideaVersion = new IdeaVersion(plugin.getSinceBuild(), plugin.getUntilBuild());
                     p.setIdeaVersion(ideaVersion);
+
                     plugins.add(p);
                 } catch (Exception e) {
                     mLogger.fine(String.format("download file %s failed: %s", pluginName, e.getMessage()));
@@ -214,45 +216,28 @@ public class PluginExporterAction extends AnAction {
                     (CharacterEscapeHandler)(ac, i, j, flag, writer) -> writer.write(ac, i, j));
             mar.marshal(plugins, xmlWriter);
             xmlWriter.flush();
-
-            jsonWriter.write(model.toJsonString());
-            jsonWriter.flush();
         }
     }
 
-    private int getId(String pluginName) throws IOException {
-        HttpGet get = new HttpGet("https://plugins.jetbrains.com/api/searchPlugins?excludeTags=theme&max=12&offset=0&search="
-                + URLEncoder.encode(pluginName.replaceAll("([A-Z]+)", " $1"), UTF_8.name()));
-        final CloseableHttpResponse response = httpClient.execute(get);
-        final String json = EntityUtils.toString(response.getEntity(), UTF_8);
-        final Collector collector = surfer.collector(json);
-        final JsonPath compiledPath = JsonPathCompiler.compile("$.plugins[?(@.name=='" + pluginName + "')].id");
-        final ValueBox<Integer> id = collector.collectOne(compiledPath, Integer.class);
-        collector.exec();
-        return id.get();
+    private File downloadPluginFile(File jsonFile, @NotNull ProgressIndicator indicator, PluginNodeEntity plugin, String pluginName)
+            throws IOException {
+        final MarketplaceRequests myMarketplaceRequests = MarketplaceRequests.getInstance();
+
+        final Map<String, String> parameters = new HashMap<>();
+        parameters.put("id", plugin.getPluginIdString());
+        parameters.put("build", myMarketplaceRequests.getBuildForPluginRepositoryRequests());
+        parameters.put("uuid", PermanentInstallationID.get());
+        final String url = Urls
+                .newFromEncoded(ApplicationInfoImpl.getShadowInstance().getPluginsDownloadUrl())
+                .addParameters(parameters)
+                .toExternalForm();
+
+        final File file = myMarketplaceRequests.download(url, indicator);
+        final File destFile = new File(jsonFile.getParentFile(), file.getName());
+
+        FileUtils.moveFile(file, destFile);
+
+        return destFile;
     }
 
-    private String getFileName(int id, String version) throws IOException {
-        HttpGet get = new HttpGet("https://plugins.jetbrains.com/api/plugins/" + id + "/updates");
-        final CloseableHttpResponse response = httpClient.execute(get);
-        final String json = EntityUtils.toString(response.getEntity(), UTF_8);
-        final Collector collector = surfer.collector(json);
-        final JsonPath compiledPath = JsonPathCompiler.compile("$[?(@.version=='" + version + "')].file");
-        final ValueBox<String> name = collector.collectOne(compiledPath, String.class);
-        collector.exec();
-        return name.get();
-    }
-
-    private void download(File jsonFile, String fileName) {
-        final File parent = new File(jsonFile.getParentFile().getAbsolutePath() + File.separator + "/plugins");
-        if (!parent.exists()) {
-            parent.mkdirs();
-        }
-        final File file = new File(parent, Paths.get(fileName).getFileName().toString());
-        try {
-            Request.Get("https://plugins.jetbrains.com/files/" + fileName).execute().saveContent(file);
-        } catch (IOException e) {
-            mLogger.log(Level.FINER, String.format("download file '{%s}'failed", fileName), e);
-        }
-    }
 }

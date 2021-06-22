@@ -20,6 +20,8 @@ public class PluginImporterExporterPanel {
     public TextFieldWithBrowseButton mTextFieldWithBrowseButton;
     public JCheckBox mSaveDisabledPluginCheckBox;
     private JLabel mSelectFileLabel;
+    public JCheckBox mExportAsPluginRepositoryCheckBox;
+    public JTextField mRepositoryURL;
 
     public JComponent createExporterComponent() {
         FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, true, false, false, false, false);
