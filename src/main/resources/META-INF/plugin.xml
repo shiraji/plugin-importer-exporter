@@ -1,22 +1,10 @@
 <idea-plugin>
     <id>com.github.shiraji.pluginimporterexporter</id>
-    <name>Plugin Importer+Exporter</name>
+    <name>Plugins Importer+Exporter</name>
     <version>0.0.4</version>
     <vendor email="isogai.shiraji@gmail.com" url="https://github.com/shiraji">
         Shiraji
     </vendor>
-
-    <description><![CDATA[
-        This plugin currently has two main features.
-        <ul>
-            <li>Dump which plugins are installed to a JSON file</li>
-            <li>Dump which plugins are installed as plugin repository</li>
-            <li>Download all plugins from a JSON file</li>
-        </ul>
-
-        <a href="https://github.com/shiraji/plugin-importer-exporter">GitHub</a> |
-        <a href="https://github.com/shiraji/plugin-importer-exporter/issues">Issues</a>
-    ]]></description>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="181"/>

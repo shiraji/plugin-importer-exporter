@@ -1,11 +1,13 @@
 # Plugin Importer+Exporter
 <!-- Plugin description -->
-This plugin currently has two main features.
+  This plugin currently has these main features.
 
-1. Dump which plugins are installed to a JSON file
-1. Download all plugins from a JSON file
+- Dump which plugins are installed to a JSON file
+- Dump which plugins are installed as plugin repository
+- Download all plugins from a JSON file
 
-This plugin DOES NOT export actual plugins.
+
+[GitHub](https://github.com/shiraji/plugin-importer-exporter) | [Issues](https://github.com/shiraji/plugin-importer-exporter/issues)
 <!-- Plugin description end -->
 ## Installation
 

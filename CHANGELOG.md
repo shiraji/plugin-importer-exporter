@@ -1,4 +1,6 @@
-## [ver 0.0.4](https://github.com/shiraji/plugin-importer-exporter/releases/tag/release-0.0.4)
+## [Unreleased]
+## [0.0.4]
+## [0.0.4]
 ### Changed
 - upgrade to latest SDK
 - update the gradle configuration
