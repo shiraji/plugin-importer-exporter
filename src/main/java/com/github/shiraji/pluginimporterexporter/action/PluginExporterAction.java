@@ -233,7 +233,7 @@ public class PluginExporterAction extends AnAction {
                 .toExternalForm();
 
         final File file = myMarketplaceRequests.download(url, indicator);
-        final File destFile = new File(jsonFile.getParentFile(), file.getName());
+        final File destFile = new File(jsonFile.getParentFile().getAbsolutePath()+"/plugins", file.getName());
 
         FileUtils.moveFile(file, destFile);
 
